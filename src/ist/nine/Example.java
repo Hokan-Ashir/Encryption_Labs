@@ -1,10 +1,8 @@
 package ist.nine;
 
-import ist.one.IST_1;
+import ist.common.AbstractEncryptionCase;
 
-public class Example {
-    private static final int BLOCK_LENGTH = 64;
-
+public class Example extends AbstractEncryptionCase {
     private final int[] testKey = {
             // key for 9 lab (@workbook)
             1, 0, 1, 1,
@@ -126,7 +124,7 @@ public class Example {
         }
 
         // substitution
-        for (int i = 0; i < resultVector.length; i += IST_1.BIT_LENGTH) {
+        for (int i = 0; i < resultVector.length; i += BIT_LENGTH) {
             int u1 = resultVector[i];
             int u2 = resultVector[i + 1];
             int u3 = resultVector[i + 2];
@@ -190,7 +188,7 @@ public class Example {
         }*/
 
         for (int j = 0; j < resultVector.length; ++j) {
-            if (j != 0 && j % IST_1.BIT_LENGTH == 0) {
+            if (j != 0 && j % BIT_LENGTH == 0) {
                 System.out.print(" ");
             }
             System.out.print(resultVector[j]);

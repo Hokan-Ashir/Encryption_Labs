@@ -1,8 +1,8 @@
 package ist.six;
 
-import ist.one.IST_1;
+import ist.common.AbstractEncryptionCase;
 
-public class Example {
+public class Example extends AbstractEncryptionCase {
     private double[] testVector = {
             0.68d, 0.05d, 0.09d, 0.13d, 0.98d, 0.94d, 0.9d, 0.86d,
             0.97d, 0.93d, 0.89d, 0.82d, 0.96d, 0.92d, 0.88d, 0.84,
@@ -95,7 +95,7 @@ public class Example {
             resultVector[i] = inputVector[permutation[i] - 1];
         }
 
-        for (int i = 0; i < resultVector.length; i += IST_1.BIT_LENGTH) {
+        for (int i = 0; i < resultVector.length; i += BIT_LENGTH) {
             double u1 = resultVector[i];
             double u2 = resultVector[i + 1];
             double u3 = resultVector[i + 2];
@@ -172,7 +172,7 @@ public class Example {
         }*/
 
         System.out.println("Result F2(x) vector:");
-        for (int i = 0; i < resultVector.length; i += (IST_1.BIT_LENGTH * 2)) {
+        for (int i = 0; i < resultVector.length; i += (BIT_LENGTH * 2)) {
             System.out.println(resultVector[i] + " " +
                     resultVector[i + 1] + " " +
                     resultVector[i + 2] + " " +
@@ -187,7 +187,7 @@ public class Example {
 
         double[] fullEncryption = testOneCycleEncryption(testOneCycleEncryption(resultVector));
         System.out.println("Result F4(x) vector:");
-        for (int i = 0; i < fullEncryption.length; i += (IST_1.BIT_LENGTH * 2)) {
+        for (int i = 0; i < fullEncryption.length; i += (BIT_LENGTH * 2)) {
             System.out.println(fullEncryption[i] + " " +
                     fullEncryption[i + 1] + " " +
                     fullEncryption[i + 2] + " " +

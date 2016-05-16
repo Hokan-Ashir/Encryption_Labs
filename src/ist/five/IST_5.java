@@ -1,152 +1,37 @@
 package ist.five;
 
 import ist.Pair;
-import ist.one.IST_1;
-import ist.three.IST_3;
+import ist.common.AbstractEncryptionCase;
 
-import java.math.BigInteger;
 import java.util.*;
 
-public class IST_5 {
-    private static int[] substitution = {6, 5, 3, 11, 14, 10, 8, 1, 12, 2, 15, 4, 0, 13, 9, 7};//{0, 13, 11, 8, 3, 6, 4, 1, 15, 2, 5, 14, 10, 12, 9, 7};
-    private static int[] reverseSubstitution = new int[(int) Math.pow(2.0d, IST_1.BIT_LENGTH)];
-    private int[] reversePermutation = new int[IST_3.BLOCK_LENGTH + 1];
-    private static int[] permutation = new int[IST_3.BLOCK_LENGTH + 1];
+public class IST_5 extends AbstractEncryptionCase {
 
     public IST_5() {
-        for (int i = 1; i < IST_3.BLOCK_LENGTH + 1; ++i) {
-            reversePermutation[(5 * i) % IST_3.BLOCK_LENGTH] = i;
-            permutation[i] = (5 * i) % IST_3.BLOCK_LENGTH;
-        }
-        reversePermutation[IST_3.BLOCK_LENGTH] = IST_3.BLOCK_LENGTH;
-        permutation[IST_3.BLOCK_LENGTH] = IST_3.BLOCK_LENGTH;
-
-        System.out.println("Permutation");
-        for (int i = 1; i < IST_3.BLOCK_LENGTH + 1; ++i) {
-            System.out.print(permutation[i] + " ");
-        }
-        System.out.println();
-
-        System.out.println("Reversed permutation");
-        for (int i = 1; i < IST_3.BLOCK_LENGTH + 1; ++i) {
-            System.out.print(reversePermutation[i] + " ");
-        }
-        System.out.println();
-
-        for (int i = 0; i < reverseSubstitution.length; i++) {
-            reverseSubstitution[substitution[i]] = i;
-        }
-
-        System.out.println("Reversed substitution");
-        for (int i = 0; i < reverseSubstitution.length; ++i) {
-            System.out.print(reverseSubstitution[i] + " ");
-        }
-        System.out.println();
-    }
-
-    private static long permutation(long vector) {
-        long result = 0;
-        for (int i = 0; i < IST_3.BLOCK_LENGTH; ++i) {
-            if (BigInteger.valueOf(vector).testBit(i)) {
-                result |= (long) 1 << (permutation[i + 1] - 1);
-            }
-        }
-        return result;
-    }
-
-    private static long reversedPermutation(long vector) {
-        long result = 0;
-        for (int i = 0; i < IST_3.BLOCK_LENGTH; ++i) {
-            if (BigInteger.valueOf(vector).testBit(permutation[i + 1] - 1)) {
-                result |= (long) 1 << i;
-            }
-        }
-        return result;
-    }
-
-    public static long encrypt(long vector, long key) {
-        vector = encryptWithoutKey(vector, key);
-        return vector ^ key;
-    }
-
-    private static long encryptWithoutKey(long vector, long key) {
-        for (int i = 0; i < IST_3.NUMBER_OF_ROUNDS; i++) {
-            vector = encryptOneCycle(vector, key);
-        }
-        return vector;
-    }
-
-    private static long encryptOneCycle(long vector, long key) {
-        long result = vector;
-        result ^= key;
-        System.out.println("After XOR key: " + result);
-
-        //System.out.println("After XOR-key: " + result);
-        long temp = 0;
-        for (int j = 0; j < IST_3.BLOCK_LENGTH / IST_1.BIT_LENGTH; ++j) {
-            temp |= ((long) substitution[(int) result & 0xF] << (j * IST_1.BIT_LENGTH));
-            result >>= IST_1.BIT_LENGTH;
-        }
-        System.out.println("Before permutation: " + temp);
-        temp = permutation(temp);
-        System.out.println("After  permutation: " + temp);
-        System.out.println("----");
-        //System.out.println("Before permutation: " + temp);
-        return temp;
-    }
-
-    public static long decrypt(long encryptedVector, long  key) {
-        encryptedVector ^= key;
-        for (int i = 0; i < IST_3.NUMBER_OF_ROUNDS; i++) {
-            encryptedVector = decryptOneCycle(encryptedVector, key);
-        }
-        return encryptedVector;
-    }
-
-    private static long decryptOneCycle(long encryptedVector, long key) {
-        long result = reversedPermutation(encryptedVector);
-        //System.out.println("After reversed permutation: " + key);
-        long temp = 0;
-        for (int j = 0; j < IST_3.BLOCK_LENGTH / IST_1.BIT_LENGTH; ++j) {
-            temp |= ((long) reverseSubstitution[(int) result & 0xF] << (j * IST_1.BIT_LENGTH));
-            result >>= IST_1.BIT_LENGTH;
-        }
-
-        return temp ^ key;
-    }
-
-    private long decryptOneCycleKey(long encryptedVector, long openVector) {
-        long key;
-        key = reversedPermutation(encryptedVector);
-        //System.out.println("After reversed permutation: " + key);
-        long temp = 0;
-        for (int j = 0; j < IST_3.BLOCK_LENGTH / IST_1.BIT_LENGTH; ++j) {
-            temp |= ((long) reverseSubstitution[(int) key & 0xF] << (j * IST_1.BIT_LENGTH));
-            key >>= IST_1.BIT_LENGTH;
-        }
-        key = temp;
-        //System.out.println("Before XOR-key: " + key);
-        return key ^ openVector;
+        printPermutation();
+        printReversedPermutation();
+        printReversedSubstitution();
     }
 
     private long revSP(long v) {
         long temp = 0;
         v = reversedPermutation(v);
-        for (int j = 0; j < IST_3.BLOCK_LENGTH / IST_1.BIT_LENGTH; ++j) {
-            temp |= ((long) reverseSubstitution[(int) v & 0xF] << (j * IST_1.BIT_LENGTH));
-            v >>= IST_1.BIT_LENGTH;
+        int[] reverseSubstitution = getReversedSubstitution();
+        for (int j = 0; j < BLOCK_LENGTH / BIT_LENGTH; ++j) {
+            temp |= ((long) reverseSubstitution[(int) v & 0xF] << (j * BIT_LENGTH));
+            v >>= BIT_LENGTH;
         }
         return temp;
     }
 
     private boolean bruteSlide(long key) {
         Random random = new Random();
-        long openText, cipherText, rev;
+        long openText, cipherText;
         //Set<Pair<Long, Long>> pairSet = new HashSet<Pair<Long, Long>>();
         // do not using Set & assuming that all generated pairs are unique
         List<Pair<Long, Long>> pairList = new ArrayList<Pair<Long, Long>>();
         while (true) {
-            if (pairList.size() == Math.pow(2.0d, IST_3.BLOCK_LENGTH / 2)) {
+            if (pairList.size() == Math.pow(2.0d, BLOCK_LENGTH / 2)) {
                 break;
             } else {
                 openText = (long) (random.nextDouble() * (Integer.MAX_VALUE));
@@ -214,7 +99,7 @@ public class IST_5 {
 
     private void bruteForce(long openText, long cypherText) {
         long beginTime = System.nanoTime();
-        for (long i = 0; i < Math.pow(2.0d, IST_3.BLOCK_LENGTH); i++) {
+        for (long i = 0; i < Math.pow(2.0d, BLOCK_LENGTH); i++) {
             /*if (encrypt(openText, i) == cypherText) {
                 System.out.println("key is: " + i);
                 System.out.println("Total search time (sec.): " + (System.nanoTime() - beginTime) / 1000000000.0);
@@ -241,7 +126,7 @@ public class IST_5 {
         boolean firstMatchDone = false;
         long beginTime = System.nanoTime();
         List<Pair<Long, Pair<Pair<Long, Long>, Pair<Long, Long>>>> pairList = new LinkedList<Pair<Long, Pair<Pair<Long, Long>, Pair<Long, Long>>>>();
-        for (long i = 0; i < Math.pow(2.0d, IST_3.BLOCK_LENGTH / 2); ++i) {
+        for (long i = 0; i < Math.pow(2.0d, BLOCK_LENGTH / 2); ++i) {
             openText = (long) (random.nextDouble() * (Integer.MAX_VALUE));
             cipherText = encryptWithoutKey(openText, key);
             revXORDifference = revSP(openText) ^ revSP(cipherText);

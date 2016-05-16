@@ -1,11 +1,11 @@
 package ist.one;
 
 import ist.Pair;
+import ist.common.AbstractEncryptionCase;
 
 import java.util.*;
 
-public class IST_1 {
-    public final static int BIT_LENGTH = 4;
+public class IST_1 extends AbstractEncryptionCase {
     private Integer [] substitution = new Integer[(int)Math.pow(2.0d, BIT_LENGTH)];
     private int [][] diffMatrix = new int[substitution.length][substitution.length];
     private List<Statistics> weightStatisticsList = new ArrayList<Statistics>();
@@ -48,10 +48,6 @@ public class IST_1 {
                 diffMatrix[i ^ j][substitution[i] ^ substitution[j]]++;
             }
         }
-    }
-
-    public void createAndPrintDifferentialsTable() {
-
     }
 
     public void run() {
@@ -100,12 +96,6 @@ public class IST_1 {
         }
     }
 
-    public static int NumberOfSetBits(int i) {
-        i = i - ((i >> 1) & 0x55555555);
-        i = (i & 0x33333333) + ((i >> 2) & 0x33333333);
-        return (((i + (i >> 4)) & 0x0F0F0F0F) * 0x01010101) >> 24;
-    }
-
     private void generateSubstitution(boolean fistRun) {
         List<Integer> randomList;
         if (fistRun) {
@@ -123,8 +113,8 @@ public class IST_1 {
 
     private void printSubstitution() {
         System.out.println("Generated substitution");
-        for (int i = 0; i < substitution.length; ++i) {
-            System.out.print(substitution[i] + " ");
+        for (Integer aSubstitution : substitution) {
+            System.out.print(aSubstitution + " ");
         }
         System.out.println();
     }

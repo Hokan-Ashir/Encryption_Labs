@@ -1,9 +1,9 @@
 package ist.nine;
 
-import ist.one.IST_1;
+import ist.common.AbstractEncryptionCase;
 
-public class TriangleMethod {
-    private static final int NUMBER_OF_ELEMENTS = (int) Math.pow(2.0d, IST_1.BIT_LENGTH);
+public class TriangleMethod extends AbstractEncryptionCase {
+    private static final int NUMBER_OF_ELEMENTS = (int) Math.pow(2.0d, BIT_LENGTH);
     private boolean[][] methodMatrix = new boolean[NUMBER_OF_ELEMENTS][NUMBER_OF_ELEMENTS];
     ISubstitutionFunctions substitutionFunctions;
 

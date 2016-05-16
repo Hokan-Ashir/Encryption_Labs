@@ -1,28 +1,12 @@
 package ist.six;
 
-import ist.five.IST_5;
-import ist.one.IST_1;
-import ist.three.IST_3;
+import ist.common.AbstractEncryptionCase;
 
 import java.util.Random;
 
-public class IST_6 {
-    private double[] keyVector = new double[IST_3.BLOCK_LENGTH];
+public class IST_6  extends AbstractEncryptionCase {
+    private double[] keyVector = new double[BLOCK_LENGTH];
     private long y;
-
-    private int[] permutation = {
-            5, 10, 15, 20, 25, 30, 3, 8,
-            13, 18, 23, 28, 1, 6, 11, 16,
-            21, 26, 31, 4, 9, 14, 19, 24,
-            29, 2, 7, 12, 17, 22, 27, 32
-    };
-
-    private int[] reversedPermutation = {
-            13, 26, 7, 20, 1, 14, 27, 8,
-            21, 2, 15, 28, 9, 22, 3, 16,
-            29, 10, 23, 4, 17, 30, 11, 24,
-            5, 18, 31, 12, 25, 6, 19, 32
-    };
 
     private void generateInputKeyVector() {
         Random random = new Random();
@@ -55,8 +39,6 @@ public class IST_6 {
     }
 
     public IST_6() {
-        // get this IST_5 instance only for permutation creation
-        IST_5 ist_5 = new IST_5();
         generateInputKeyVector();
     }
 
@@ -104,7 +86,7 @@ public class IST_6 {
     private double[] innerEncryption(double[] inputVector) {
         // substitution
         double[] resultVector = new double[inputVector.length];
-        for (int i = 0; i < resultVector.length; i += IST_1.BIT_LENGTH) {
+        for (int i = 0; i < resultVector.length; i += BIT_LENGTH) {
             double u1 = resultVector[i];
             double u2 = resultVector[i + 1];
             double u3 = resultVector[i + 2];
@@ -115,6 +97,7 @@ public class IST_6 {
             resultVector[i + 3] = v4(u1, u2, u3, u4);
         }
 
+        int[] permutation = getPermutation();
         // permutation
         for (int i = 0; i < resultVector.length; ++i) {
             resultVector[i] = inputVector[permutation[i] - 1];
@@ -182,13 +165,14 @@ public class IST_6 {
 
     private double[] innerDecryption(double[] inputVector) {
         // reversed permutation
+        int[] reversedPermutation = getReversePermutation();
         double[] resultVector = new double[inputVector.length];
         for (int i = 0; i < resultVector.length; ++i) {
             resultVector[i] = inputVector[reversedPermutation[i] - 1];
         }
 
         // reversed substitution
-        for (int i = 0; i < resultVector.length; i += IST_1.BIT_LENGTH) {
+        for (int i = 0; i < resultVector.length; i += BIT_LENGTH) {
             double v1 = resultVector[i];
             double v2 = resultVector[i + 1];
             double v3 = resultVector[i + 2];
@@ -225,7 +209,7 @@ public class IST_6 {
     }
 
     private void printDoubleVector(double[] inputVector) {
-        for (int i = 0; i < inputVector.length; i += (IST_1.BIT_LENGTH * 2)) {
+        for (int i = 0; i < inputVector.length; i += (BIT_LENGTH * 2)) {
             System.out.println(inputVector[i] + " " +
                     inputVector[i + 1] + " " +
                     inputVector[i + 2] + " " +
@@ -235,10 +219,6 @@ public class IST_6 {
                     inputVector[i + 6] + " " +
                     inputVector[i + 7]);
         }
-    }
-
-    public static String toBinaryString(long value) {
-        return String.format("%32s", Long.toBinaryString(value)).replace(' ', '0');
     }
 
     private void doOneIteration(long x, long key) {
@@ -275,7 +255,7 @@ public class IST_6 {
         System.out.println();
 
         System.out.println("Minimum value: " + minimumValue);
-        System.out.println("Removal: " + Math.round((IST_3.BLOCK_LENGTH - 100 * minimumValue) * 100) / 100.0d);
+        System.out.println("Removal: " + Math.round((BLOCK_LENGTH - 100 * minimumValue) * 100) / 100.0d);
         System.out.println();
     }
 
@@ -287,7 +267,7 @@ public class IST_6 {
         long key = (long) (random.nextDouble() * (Integer.MAX_VALUE));
         System.out.println("Random key (k): " + key);
         System.out.println("Binary key: " + toBinaryString(key));
-        y = IST_5.encrypt(x, key);
+        y = encrypt(x, key);
         System.out.println("Cipher text (y): " + y);
         System.out.println("Binary cipher text: " + toBinaryString(y));
 

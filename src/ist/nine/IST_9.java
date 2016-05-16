@@ -1,31 +1,15 @@
 package ist.nine;
 
 import ist.Pair;
-import ist.five.IST_5;
-import ist.one.IST_1;
-import ist.three.IST_3;
+import ist.common.AbstractEncryptionCase;
 
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
-public class IST_9 {
-    private long[] tempVector = new long[IST_3.BLOCK_LENGTH];
-
-    private long[] permutation = {
-            5, 10, 15, 20, 25, 30, 3, 8,
-            13, 18, 23, 28, 1, 6, 11, 16,
-            21, 26, 31, 4, 9, 14, 19, 24,
-            29, 2, 7, 12, 17, 22, 27, 32
-    };
-
-    private long[] reversedPermutation = {
-            13, 26, 7, 20, 1, 14, 27, 8,
-            21, 2, 15, 28, 9, 22, 3, 16,
-            29, 10, 23, 4, 17, 30, 11, 24,
-            5, 18, 31, 12, 25, 6, 19, 32
-    };
+public class IST_9 extends AbstractEncryptionCase {
+    private long[] tempVector = new long[BLOCK_LENGTH];
 
     private long v1(long u1, long u2, long u3, long u4, int m) {
         return TwoAdicOperations.twoAdicXOR(new long[]{
@@ -131,13 +115,14 @@ public class IST_9 {
 
     private long[] oneCycleDecryption(long[] xVector, long[] key, int m) {
         // reversed permutation
+        int[] reversedPermutation = getReversePermutation();
         long[] resultVector = new long[xVector.length];
         for (int i = 0; i < xVector.length; ++i) {
             resultVector[i] = xVector[(int)reversedPermutation[i] - 1];
         }
 
         // reversed substitution
-        for (int i = 0; i < resultVector.length; i += IST_1.BIT_LENGTH) {
+        for (int i = 0; i < resultVector.length; i += BIT_LENGTH) {
             long v1 = resultVector[i];
             long v2 = resultVector[i + 1];
             long v3 = resultVector[i + 2];
@@ -175,7 +160,7 @@ public class IST_9 {
         }
 
         // substitution
-        for (int i = 0; i < inputVector.length; i += IST_1.BIT_LENGTH) {
+        for (int i = 0; i < inputVector.length; i += BIT_LENGTH) {
             long u1 = inputVector[i];
             long u2 = inputVector[i + 1];
             long u3 = inputVector[i + 2];
@@ -194,10 +179,11 @@ public class IST_9 {
             xVector[i + 3] = vector & 0x1;*/
         }
 
+        int[] permutation = getPermutation();
         // permutation
         long[] resultVector = new long[inputVector.length];
         for (int i = 0; i < inputVector.length; ++i) {
-            resultVector[i] = inputVector[(int)permutation[i] - 1];
+            resultVector[i] = inputVector[permutation[i] - 1];
         }
 
         return resultVector;
@@ -205,7 +191,7 @@ public class IST_9 {
 
     private long[] fullEncryption(long[] xVector, long[] key, int m) {
         long[] resultVector = oneCycleEncryption(xVector, key, m);
-        for (int i = 1; i < IST_3.NUMBER_OF_ROUNDS; ++i) {
+        for (int i = 1; i < NUMBER_OF_ROUNDS; ++i) {
             resultVector = oneCycleEncryption(resultVector, key, m);
         }
 
@@ -243,7 +229,7 @@ public class IST_9 {
         }
 
         // val
-        long[] aimFunctionArray = LongUtils.longToLongArray(aimFunctionValuePreVal, IST_3.BLOCK_LENGTH * 2);
+        long[] aimFunctionArray = LongUtils.longToLongArray(aimFunctionValuePreVal, BLOCK_LENGTH * 2);
         int valIndex = 0;
         for (int i = aimFunctionArray.length - 1; i > -1; --i) {
             if (aimFunctionArray[i] == 1) {
@@ -256,7 +242,7 @@ public class IST_9 {
     }
 
     private long[] createRandomVector() {
-        long[] resultVector = new long[IST_3.BLOCK_LENGTH];
+        long[] resultVector = new long[BLOCK_LENGTH];
         Random random = new Random();
         for (int i = 0; i < resultVector.length; ++i) {
             resultVector[i] = Math.abs(random.nextInt()) % 3;
@@ -269,8 +255,8 @@ public class IST_9 {
             tempVector[i] = inVector[i];
         }
         long[] inputVector = tempVector;//inVector.clone();
-        Pair<IntegerPairWrapper[], Integer> resultVector = new Pair(new IntegerPairWrapper[IST_3.BLOCK_LENGTH], new Integer(0));
-        for (int i = 0; i < IST_3.BLOCK_LENGTH; ++i) {
+        Pair<IntegerPairWrapper[], Integer> resultVector = new Pair(new IntegerPairWrapper[BLOCK_LENGTH], new Integer(0));
+        for (int i = 0; i < BLOCK_LENGTH; ++i) {
             resultVector.getFirst()[i] = new IntegerPairWrapper(0, 0);
         }
         // step 1
@@ -281,7 +267,7 @@ public class IST_9 {
         //int iteration = 1;
         while (true) {
             // step 2
-            for (int i = 0; i < IST_3.BLOCK_LENGTH; ++i) {
+            for (int i = 0; i < BLOCK_LENGTH; ++i) {
                 if (key[i] == 2) {
                     // 2.1
                     key[i] = 0;
@@ -351,7 +337,7 @@ public class IST_9 {
             int hMax = resultVector.getFirst()[0].getFirst();
             int index = 0;
             int currentHMax;
-            for (int i = 1; i < IST_3.BLOCK_LENGTH; ++i) {
+            for (int i = 1; i < BLOCK_LENGTH; ++i) {
                 currentHMax = hMax;
                 hMax = Math.max(hMax, resultVector.getFirst()[i].getFirst());
                 if (currentHMax != hMax) {
@@ -376,10 +362,10 @@ public class IST_9 {
     private Statistics statistics(long[] inputVector, long[] realKey, int numberOfTestKeys, int m) {
         // step 1
         // setting up N-Matrix
-        Statistics statistics = new Statistics(IST_3.BLOCK_LENGTH);
+        Statistics statistics = new Statistics(BLOCK_LENGTH);
         for (int i = 0; i < numberOfTestKeys; ++i) {
             Pair<IntegerPairWrapper[], Integer> digitRating = digitRating(inputVector, m);
-            for (int j = 0; j < IST_3.BLOCK_LENGTH; ++j) {
+            for (int j = 0; j < BLOCK_LENGTH; ++j) {
                 if (digitRating.getFirst()[j].getSecond() == 0 && realKey[j] == 0) {
                     statistics.nMatrixStatistics[j].n00++;
                 } else if (digitRating.getFirst()[j].getSecond() == 0 && realKey[j] == 1) {
@@ -393,7 +379,7 @@ public class IST_9 {
         }
 
         // setting up P-Matrix & Q-Matrix
-        for (int i = 0; i < IST_3.BLOCK_LENGTH; ++i) {
+        for (int i = 0; i < BLOCK_LENGTH; ++i) {
             // 00
             if ((statistics.nMatrixStatistics[i].n00 + statistics.nMatrixStatistics[i].n10) != 0) {
                 statistics.pMatrixStatistics[i].p00 =
@@ -450,7 +436,7 @@ public class IST_9 {
         double p1 = 0.0d;
         for (int i = 0; i < numberOfTestKeys; ++i) {
             Pair<IntegerPairWrapper[], Integer> digitRating = digitRating(inputVector, m);
-            for (int j = 0; j < IST_3.BLOCK_LENGTH; ++j) {
+            for (int j = 0; j < BLOCK_LENGTH; ++j) {
                 if (digitRating.getFirst()[j].getSecond() == 0) {
                     p0++;
                 } else if (digitRating.getFirst()[j].getSecond() == 1) {
@@ -461,7 +447,7 @@ public class IST_9 {
         p0 /= numberOfTestKeys;
         p1 /= numberOfTestKeys;
 
-        DoublePairWrapper[] piStatistics = new DoublePairWrapper[IST_3.BLOCK_LENGTH];
+        DoublePairWrapper[] piStatistics = new DoublePairWrapper[BLOCK_LENGTH];
         for (int i = 0; i < piStatistics.length; ++i) {
             piStatistics[i] = new DoublePairWrapper(0.0d, 0.0d);
             piStatistics[i].setFirst(
@@ -558,9 +544,9 @@ public class IST_9 {
             //System.out.println("Cipher text (y): " + y);
             //System.out.println("Binary cipher text: " + IST_6.toBinaryString(y));
 
-            inputVector = LongUtils.longToLongArray(x, IST_3.BLOCK_LENGTH);
-            realKey = LongUtils.longToLongArray(key, IST_3.BLOCK_LENGTH);
-            //long[] outputVector = LongUtils.longToLongArray(y, IST_3.BLOCK_LENGTH);
+            inputVector = LongUtils.longToLongArray(x, BLOCK_LENGTH);
+            realKey = LongUtils.longToLongArray(key, BLOCK_LENGTH);
+            //long[] outputVector = LongUtils.longToLongArray(y, BLOCK_LENGTH);
 
             statisticsList.add(statistics(inputVector, realKey, numberOfApproximations, m));
             if (i != 0 & (i % 300 == 0)) {
@@ -607,7 +593,6 @@ public class IST_9 {
 
     public void run() {
         // get this IST_5 instance only for permutation creation
-        IST_5 ist_5 = new IST_5();
         Statistics keysStatistics = getKeysStatistics(3000);
         Statistics approximationsStatistics = getApproximationsStatistics(3000);
         printErgodicDigitsList(keysStatistics, approximationsStatistics);
@@ -622,9 +607,9 @@ public class IST_9 {
         System.out.println("Cipher text (y): " + y);
         System.out.println("Binary cipher text: " + IST_6.toBinaryString(y));
 
-        long[] inputVector = LongUtils.longToLongArray(x, IST_3.BLOCK_LENGTH);
-        long[] realKey = LongUtils.longToLongArray(key, IST_3.BLOCK_LENGTH);
-        //long[] outputVector = LongUtils.longToLongArray(y, IST_3.BLOCK_LENGTH);
+        long[] inputVector = LongUtils.longToLongArray(x, BLOCK_LENGTH);
+        long[] realKey = LongUtils.longToLongArray(key, BLOCK_LENGTH);
+        //long[] outputVector = LongUtils.longToLongArray(y, BLOCK_LENGTH);
 
         int m = 56;
         Statistics statistics = statistics(inputVector, realKey, 5, m);
@@ -698,11 +683,11 @@ class Statistics {
     }
 
     public void calculateAverageQMatrix() {
-        for (int i = 0; i < qMatrixStatistics.length; ++i) {
-            averageQMatrix.p00 += qMatrixStatistics[i].p00;
-            averageQMatrix.p01 += qMatrixStatistics[i].p01;
-            averageQMatrix.p10 += qMatrixStatistics[i].p10;
-            averageQMatrix.p11 += qMatrixStatistics[i].p11;
+        for (PMatrix qMatrixStatistic : qMatrixStatistics) {
+            averageQMatrix.p00 += qMatrixStatistic.p00;
+            averageQMatrix.p01 += qMatrixStatistic.p01;
+            averageQMatrix.p10 += qMatrixStatistic.p10;
+            averageQMatrix.p11 += qMatrixStatistic.p11;
         }
         averageQMatrix.p00 /= qMatrixStatistics.length;
         averageQMatrix.p01 /= qMatrixStatistics.length;
@@ -731,9 +716,9 @@ class Statistics {
     public double getAverageDominance() {
         double p00AverageValue = 0.0d;
         double p11AverageValue = 0.0d;
-        for (int i = 0; i < pMatrixStatistics.length; ++i) {
-            p00AverageValue += pMatrixStatistics[i].p00 - 0.5;
-            p11AverageValue += pMatrixStatistics[i].p11 - 0.5;
+        for (PMatrix pMatrixStatistic : pMatrixStatistics) {
+            p00AverageValue += pMatrixStatistic.p00 - 0.5;
+            p11AverageValue += pMatrixStatistic.p11 - 0.5;
         }
         return Math.max(
                 p00AverageValue / pMatrixStatistics.length,
@@ -766,7 +751,7 @@ class LongUtils {
         return result;
     }
 
-    public static long longArrayToLong(long[] array) {
+    public long longArrayToLong(long[] array) {
         int result = 0;
         for (int i = 0; i < array.length; ++i) {
             result |= array[i] << i;
